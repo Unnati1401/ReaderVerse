@@ -10,6 +10,13 @@
             <button onclick="getLocation()">Give access to your location</button>
                 
                 <p id="demo"></p>
+                <div class="form-group">
+                  <input class="form-control" type="text" name="latitude" id="latitude" placeholder="Latitude" />
+                </div>
+                <div class="form-group">
+                  <input class="form-control" type="text" name="longitude" id="longitude" placeholder="Longitude" />
+                </div>
+                
                 <!-- <img id="mapholder" src="" alt="Location" display="None">
                 <div id="output"></div> -->
                 
@@ -41,7 +48,8 @@
     {% block script %}
     <script>
     var x = document.getElementById("demo");
-
+    var lat = document.getElementById("latitude");
+    var long = document.getElementById("longitude");
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -52,8 +60,10 @@
     
     function showPosition(position) {
         
-        x.innerHTML = "Latitude: " + position.coords.latitude + 
-        "<br>Longitude: " + position.coords.longitude;
+        // x.innerHTML = "Latitude: " + position.coords.latitude + 
+        // "<br>Longitude: " + position.coords.longitude;
+        lat.value = position.coords.latitude;
+        long.value = position.coords.longitude;
         var latlon = position.coords.latitude + "," + position.coords.longitude;
         // var img_url = "https://maps.googleapis.com/maps/api/staticmap?center="+latlon+"&zoom=14&size=400x300&sensor=false&key=AIzaSyCbaKgkpfJ3y2tfe4JCsBRe6ADroVBG-Ss";
         // var img = new Image();

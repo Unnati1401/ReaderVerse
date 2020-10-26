@@ -1,4 +1,5 @@
 # pylint: disable=no-member
+# pylint: disable=not-an-iterable
 from django.shortcuts import render
 from core.forms import UserForm
 from .models import UserProfileInfo, Genre, Book, BookDonate
@@ -60,7 +61,12 @@ def register(request):
         genresList = request.POST.getlist('genres')
         if userform.is_valid():
             newUser = userform.save(commit=False)
+            newUser.latitude = request.POST.get('latitude')
+            newUser.longitude = request.POST.get('longitude')
             newUser.save()
+            print(newUser.latitude)
+            print(request.POST.get('latitude'))
+            print(newUser.longitude)
             for g in genresList:
                 #print(g)
                 newUser.favGenres.connect(Genre.nodes.get(name=g))
@@ -85,29 +91,16 @@ def explore(request):
         userNode = UserProfileInfo.nodes.get(username=user.username)
         userGenres = userNode.favGenres.all()
         print(userGenres)
+        #adding books belonging to user's genres
         for b in books:
             if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None and b.genre.get() in userGenres:
-                booksToBePassed.append([b.title,b.yearOfRelease,b.rating,b.wrote.get(),b.published.get(),b.image_url,b.genre.get_or_none()])
+                booksToBePassed.append([b.title,b.yearOfRelease,b.rating,b.wrote.get(),b.published.get(),b.image_url,b.genre.all()])
     else:    
+        #adding all books in db
         for b in books:
             if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None:
-                booksToBePassed.append([b.title,b.yearOfRelease,b.rating,b.wrote.get(),b.published.get(),b.image_url,b.genre.get_or_none()])
-            # else:
-            #     print(b.wrote.get().name)
-    
-    #print(booksToBePassed)
-
-    #Paginator logic
-    page = request.GET.get('page', 1)
-    paginator = Paginator(books, 10)
-    
-    try:
-        books = paginator.page(page)
-    except PageNotAnInteger:
-        books = paginator.page(1)
-    except EmptyPage:
-        books = paginator.page(paginator.num_pages)
-
+                booksToBePassed.append([b.title,b.yearOfRelease,b.rating,b.wrote.get(),b.published.get(),b.image_url,b.genre.all()])
+            
     return render(request, 'core/explore.html', { 'books': booksToBePassed })
 
 def donate(request):
@@ -134,8 +127,57 @@ def donate(request):
             return render(request,'core/donate.html',{'genreNodes':genreNodes})
 
 def findabenefactor(request):
-    bookDonateObjs = BookDonate.nodes.get()
-    return render(request,'core/findabenefactor.html')
+
+    bookDonateObjs = BookDonate.nodes
+    list = []
+    for o in bookDonateObjs:
+        list.append([o.bookDonate.get(),o.user.get()])
+    return render(request,'core/findabenefactor.html',{'list':list})
+
+def profile(request):
+    node = UserProfileInfo.nodes.get(username=request.user.username)
+    return render(request,'core/profile.html',{'latitude':node.latitude})
+
+# Shows users what other users are reading who have common genres
+def collab(request):
+    books = Book.nodes
+    booksToBePassed = []
+    user = request.user
+    if user.is_authenticated:
+        userNode = UserProfileInfo.nodes.get(username=user.username)
+        userGenres = userNode.favGenres.all()
+        #print(userGenres)
+        #adding books belonging to user's genres
+        # for b in books:
+        #     if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None and b.genre.get() in userGenres:
+        #         booksToBePassed.append([b.title,b.yearOfRelease,b.rating,b.wrote.get(),b.published.get(),b.image_url,b.genre.get_or_none()])
+        
+        #adding books belonging to common genres vale users
+        commonUsers = []
+        for g in userGenres:
+            for curr in g.favGenre.all():
+                if curr.username != user.username:
+                    commonUsers.append(curr)
+        #print(commonUsers)
+        
+        otherGenres = []
+        for u in commonUsers:
+            currGenres = u.favGenres.all()
+            for cg in currGenres:
+                if cg not in userGenres:
+                    otherGenres.append(cg)
+
+        #print(otherGenres)
+        for b in books:
+            if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None and b.genre.get() in otherGenres:
+                booksToBePassed.append([b.title,b.yearOfRelease,b.rating,b.wrote.get(),b.published.get(),b.image_url,b.genre.all()])
+        
+    else:    
+        for b in books:
+            if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None:
+                booksToBePassed.append([b.title,b.yearOfRelease,b.rating,b.wrote.get(),b.published.get(),b.image_url,b.genre.all()])
+            
+    return render(request, 'core/explore.html', { 'books': booksToBePassed })
 
 #Creates genre nodes. Call each time before adding the first user. 
 def createGenreNodes(request):
@@ -268,7 +310,4 @@ def aboutus(request):
 
 def contactus(request):
     return render(request,'core/contactus.html')
-
-def profile(request):
-    return render(request,'core/profile.html')
 

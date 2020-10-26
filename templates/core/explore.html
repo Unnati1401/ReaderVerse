@@ -1,7 +1,13 @@
 {% extends 'core/base.html' %}
 {% block body_block %}
 
-<div class="container">
+<div class="sidenav">
+  <a href="#about">Genres</a>
+  <a href="#services">Authors</a>
+  <a href="#clients">Publishers</a>
+  <a href="{% url 'core:collab' %}">See what others are reading</a>
+</div>
+<div class="container main">
 
 
   <div class="row container">
@@ -20,7 +26,9 @@
       <div class="card-body">
         <a href="#" class="card-link">Author: {{book.3.name}}</a>
         <a href="#" class="card-link">Publisher: {{book.4.name}}</a>
-        <a href="#" class="card-link">Genre: {{book.6.name}}</a>
+        {% for g in book.6 %}
+          <a href="#" class="card-link">Genre: {{g.name}}</a>
+        {% endfor %}
       </div>
       </div>
   </div>

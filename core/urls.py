@@ -12,5 +12,6 @@ urlpatterns=[
     url(r'^profile/$',views.profile,name='profile'),
     url(r'^donate/$',views.donate,name='donate'),
     url(r'^findabenefactor/$',views.findabenefactor,name='findabenefactor'),
+    url(r'^collab/$',views.collab,name='collab'),
     url(r'^user_logout/$',views.user_logout,name='user_logout'),
 ]

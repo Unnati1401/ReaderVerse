@@ -7,27 +7,27 @@
         <h2>Donate a book</h2>
         <div class="form-group">
             <label for="title">Book Name</label>
-            <input type="text" class="form-control" id="title" placeholder="Enter book title">
+            <input type="text" class="form-control" id="title" name="title" placeholder="Enter book title">
         </div>
         <div class="form-group">
             <label for="author">Author</label>
-            <input type="text" class="form-control" id="author" placeholder="Enter author name">
+            <input type="text" class="form-control" id="author" name="author" placeholder="Enter author name">
         </div>
         <div class="form-group">
             <label for="author">Publisher</label>
-            <input type="text" class="form-control" id="publisher" placeholder="Enter publisher name">
+            <input type="text" class="form-control" id="publisher" name="publisher" placeholder="Enter publisher name">
         </div>
         <div class="form-group">
             <label for="yearOfRelease">Year of Release</label>
-            <input type="number" class="form-control" id="yearOfRelease" placeholder="Enter year of release">
+            <input type="number" class="form-control" id="yearOfRelease" name="yearOfRelease" placeholder="Enter year of release">
         </div>
         <div class="form-group">
             <label for="img_url">Image</label>
-            <input type="text" class="form-control" id="img_url" placeholder="Enter the image url">
+            <input type="text" class="form-control" id="img_url" name="img_url" placeholder="Enter the image url">
         </div>
         <div class="form-group">
             <label for="rating">Rating</label>
-            <input type="number" step="0.1" min="2" max="5" class="form-control" id="rating" placeholder="Enter the rating">
+            <input type="number" step="0.1" min="2" max="5" class="form-control" id="rating" name="rating" placeholder="Enter the rating">
         </div>
         <h2>Select the genres</h2>
         {% for g in genreNodes %}

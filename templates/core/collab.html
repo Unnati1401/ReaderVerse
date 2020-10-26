@@ -1,32 +1,37 @@
 {% extends 'core/base.html' %}
 {% block body_block %}
 
-<div class="container">
+<div class="sidenav">
+  <a href="#about">Genres</a>
+  <a href="#services">Authors</a>
+  <a href="#clients">Publishers</a>
+  <a href="{% url 'core:collab' %}">See what others are reading</a>
+</div>
+<div class="container main">
 
 
   <div class="row container">
-  {% for obj in list %}
+  {% for book in books %}
   <div class="col-4">
     <div class="card text-center" style="width: 18rem;">
-      <img class="card-img-top" src="{{obj.0.img_url}}" alt="Card image cap">
+      <img class="card-img-top" src="{{book.5}}" alt="Card image cap">
       <div class="card-body">
-        <h5 class="card-title">{{obj.0.title}}</h5>
+        <h5 class="card-title">{{book.0}}</h5>
         <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
       </div>
       <ul class="list-group list-group-flush">
-        <li class="list-group-item">Year of Release: {{obj.0.yearOfRelease}}</li>
-        <li class="list-group-item">Rating: {{obj.0.rating}}</li>
+        <li class="list-group-item">Year of Release: {{book.1}}</li>
+        <li class="list-group-item">Rating: {{book.2}}</li>
       </ul>
-      <!-- <div class="card-body">
-        <a href="#" class="card-link">Genre: {{obj.6.name}}</a>
-      </div> -->
       <div class="card-body">
-        <a href="#" class="card-link">Owned By: {{obj.1.username}}</a>
-        <a href="#" class="card-link">Owner email: {{obj.1.email}}</a>
+        <a href="#" class="card-link">Author: {{book.3.name}}</a>
+        <a href="#" class="card-link">Publisher: {{book.4.name}}</a>
+        {% for g in book.6 %}
+        <a href="#" class="card-link">Genre: {{g.name}}</a>
+        {% endfor %}
       </div>
-    </div>
+      </div>
   </div>
-
   {% if forloop.counter|divisibleby:3 %}
   </div>
   <div class="row">

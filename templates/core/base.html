@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="{% static 'assets/css/Login-Form-Clean.css' %}">
         <link rel="stylesheet" href="{% static 'assets/css/Navigation-with-Button.css' %}">
         <link rel="stylesheet" href="{% static 'assets/css/Registration-Form-with-Photo.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/sidenav.css' %}">
 
     </head>
     <a class="menu-toggle rounded" href="#">
@@ -26,11 +27,11 @@
             <ul class="nav navbar-nav sidebar-nav" id="sidebar-nav">
                 <li class="nav-item sidebar-brand"><a class="nav-link active js-scroll-trigger" href="{% url 'index' %}">ReaderVerse</a></li>
                 <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'index' %}">Home</a></li>
-                <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="about.html">About</a></li>
+                <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:aboutus' %}">About</a></li>
                 <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:register' %}">Register</a></li>
                 <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:donate' %}">Donate</a></li>
                 <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:findabenefactor' %}">Find a benefactor</a></li>
-                <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="contact.html">Contact us</a></li>
+                <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:contactus' %}">Contact us</a></li>
                 <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:explore' %}">Explore</a></li>
                 {% if user.is_authenticated %}
                     <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:profile' %}">Profile</a></li>
@@ -42,7 +43,7 @@
         </div>
     </div>
 </nav>
-    <body>
+    <body id="page-top">
         {% block body_block %}
         {% endblock %}    
         <footer class="footer text-center">
