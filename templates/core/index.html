@@ -2,7 +2,7 @@
 {% block body_block%}
 
     
-    <header class="d-flex masthead" style="background-image:url('static/assets/img/bg-masthead.jpg');">
+    <header class="d-flex masthead" style="background-image:url('static/assets/img/bg-masthead.jpeg');">
         <div class="container my-auto text-center">
             <h1 class="mb-1">ReaderVerse</h1>
             <h3 class="mb-5"><em>A paradise for bibliophile!</em></h3><a class="btn btn-primary btn-xl js-scroll-trigger" role="button" href="#about">Find Out More</a>
@@ -46,7 +46,7 @@
     </section>
     <section class="callout" style="background:linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%), url(&quot;assets/img/bg-callout.jpg&quot;);background-position:center center;background-repeat:no-repeat;background-size:cover;">
         <div class="container text-center">
-            <h2 class="mx-auto mb-5"><span>Find a</span><span><br>a benefactor!<br></span></h2><a class="btn btn-primary btn-xl" role="button" href="#">Let's go!</a></div>
+            <h2 class="mx-auto mb-5"><span>Find a</span><span><br>a benefactor!<br></span></h2><a class="btn btn-primary btn-xl" role="button" href="{% url 'core:findabenefactor' %}">Let's go!</a></div>
     </section>
     <section class="content-section bg-primary text-white">
         <div class="container text-center">

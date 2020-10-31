@@ -3,7 +3,7 @@
 
 <div class="register-photo">
     <div class="form-container">
-        <div class="image-holder"></div>
+        <!-- <div class="image-holder"></div> -->
         <form action="{% url 'core:register' %}" method="post">
             <h2 class="text-center"><strong>Create</strong> an account.</h2>
             <h2 class="text-center">Location</h2>
@@ -20,9 +20,9 @@
                 <!-- <img id="mapholder" src="" alt="Location" display="None">
                 <div id="output"></div> -->
                 
-
-            {% csrf_token %}
-            {{userform.as_p}}
+                <h2 class="text-center">Personal Details</h2>
+                {% csrf_token %}
+                {{userform.as_p}}
             <!-- <div class="form-group"><input class="form-control" type="email" name="email" placeholder="Email" /></div>
             <div class="form-group"><input class="form-control" type="password" name="password" placeholder="Password" /></div>
             <div class="form-group"><input class="form-control" type="password" name="password-repeat" placeholder="Password (repeat)" /></div>

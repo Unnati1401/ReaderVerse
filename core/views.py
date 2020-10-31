@@ -2,7 +2,7 @@
 # pylint: disable=not-an-iterable
 from django.shortcuts import render
 from core.forms import UserForm
-from .models import UserProfileInfo, Genre, Book, BookDonate
+from .models import UserProfileInfo, Genre, Book, BookDonate, Author, Publisher
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
@@ -64,17 +64,15 @@ def register(request):
             newUser.latitude = request.POST.get('latitude')
             newUser.longitude = request.POST.get('longitude')
             newUser.save()
-            print(newUser.latitude)
-            print(request.POST.get('latitude'))
-            print(newUser.longitude)
             for g in genresList:
                 #print(g)
                 newUser.favGenres.connect(Genre.nodes.get(name=g))
             return HttpResponseRedirect(reverse('index'))
         else:
             print(userform.errors)
-
+            return HttpResponse('Error in registering')
     else:
+        
         #createGenreNodes(request)
         user = request.user
         if user.is_authenticated:
@@ -83,14 +81,16 @@ def register(request):
         genreNodes = Genre.nodes
         return render(request,'core/register.html',{'userform':userform,'genreNodes':genreNodes})
 
-def explore(request):
+
+def explore(request, books=[]):
+
     books = Book.nodes
+    print(books)
     booksToBePassed = []
     user = request.user
     if user.is_authenticated:
         userNode = UserProfileInfo.nodes.get(username=user.username)
         userGenres = userNode.favGenres.all()
-        print(userGenres)
         #adding books belonging to user's genres
         for b in books:
             if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None and b.genre.get() in userGenres:
@@ -99,9 +99,10 @@ def explore(request):
         #adding all books in db
         for b in books:
             if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None:
-                booksToBePassed.append([b.title,b.yearOfRelease,b.rating,b.wrote.get(),b.published.get(),b.image_url,b.genre.all()])
-            
-    return render(request, 'core/explore.html', { 'books': booksToBePassed })
+                booksToBePassed.append([b.title, b.yearOfRelease, b.rating, b.wrote.get(
+                ), b.published.get(), b.image_url, b.genre.all()])
+                
+    return render(request, 'core/explore.html', {'books': booksToBePassed})
 
 def donate(request):
     if request.method=='POST':
@@ -178,6 +179,71 @@ def collab(request):
                 booksToBePassed.append([b.title,b.yearOfRelease,b.rating,b.wrote.get(),b.published.get(),b.image_url,b.genre.all()])
             
     return render(request, 'core/explore.html', { 'books': booksToBePassed })
+
+
+def genresPage(request):
+
+    genres = Genre.nodes
+    if request.method == "POST":
+        books = Book.nodes
+        booksToBePassed = []
+        userGenres = []
+        genresList = request.POST.getlist('genres')
+        for g in genresList:
+            userGenres.append(Genre.nodes.get(name=g))
+        #adding books belonging to user's genres
+
+        for b in books:
+            if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None and b.genre.get_or_none() in userGenres:
+                booksToBePassed.append([b.title, b.yearOfRelease, b.rating, b.wrote.get(
+                ), b.published.get(), b.image_url, b.genre.all()])
+        print(booksToBePassed)
+        print(genresList)
+        return render(request, 'core/genresPage.html', {'books': booksToBePassed, 'genreNodes': genres})
+    else:
+        return render(request, 'core/genresPage.html', {'genreNodes': genres})
+
+
+def authorsPage(request):
+    authors = Author.nodes
+    if request.method == "POST":
+        books = Book.nodes
+        booksToBePassed = []
+        userAuthors = []
+        authorsList = request.POST.getlist('authors')
+        for a in authorsList:
+            userAuthors.append(Author.nodes.get(name=a))
+        #adding books belonging to user's genres
+
+        for b in books:
+            if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None and b.wrote.get_or_none() in userAuthors:
+                booksToBePassed.append([b.title, b.yearOfRelease, b.rating, b.wrote.get(
+                ), b.published.get(), b.image_url, b.genre.all()])
+
+        return render(request, 'core/authorsPage.html', {'books': booksToBePassed, 'authorNodes': authors})
+    else:
+        return render(request, 'core/authorsPage.html', {'authorNodes': authors})
+
+
+def publishersPage(request):
+    publishers = Publisher.nodes
+    if request.method == "POST":
+        books = Book.nodes
+        booksToBePassed = []
+        userPublishers = []
+        publishersList = request.POST.getlist('publishers')
+        for p in publishersList:
+            userPublishers.append(Publisher.nodes.get(name=p))
+        #adding books belonging to user's genres
+
+        for b in books:
+            if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None and b.published.get_or_none() in userPublishers:
+                booksToBePassed.append([b.title, b.yearOfRelease, b.rating, b.wrote.get(
+                ), b.published.get(), b.image_url, b.genre.all()])
+
+        return render(request, 'core/publishersPage.html', {'books': booksToBePassed, 'publisherNodes': publishers})
+    else:
+        return render(request, 'core/publishersPage.html', {'publisherNodes': publishers})
 
 #Creates genre nodes. Call each time before adding the first user. 
 def createGenreNodes(request):

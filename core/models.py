@@ -1,6 +1,6 @@
 from django.db import models
 from django_neomodel import DjangoNode
-from neomodel import StructuredNode, RelationshipTo, RelationshipFrom
+from neomodel import StructuredNode, RelationshipTo, RelationshipFrom, Relationship
 from neomodel.properties import EmailProperty, DateProperty, StringProperty, FloatProperty, IntegerProperty
 from neomodel.cardinality import OneOrMore, One, ZeroOrMore
 
@@ -13,13 +13,14 @@ class UserProfileInfo(DjangoNode):
     address = StringProperty(max_length=200)
     pincode = StringProperty(max_length=6)
     phone = StringProperty(max_length=10, required = True)
+    latitude = FloatProperty()
+    longitude = FloatProperty()
     favGenres = RelationshipTo('Genre','FAVORITEGENRE',cardinality=ZeroOrMore)
     favBook = RelationshipTo('Book','FAVORITEBOOK',cardinality=ZeroOrMore)
     bookExchange = RelationshipTo('BookExchange','BOOKEXCHANGE',cardinality=ZeroOrMore)
     bookDonate = RelationshipTo('BookDonate','BOOKDONATE',cardinality=ZeroOrMore)
-    latitude = FloatProperty()
-    longitude = FloatProperty()
-
+    similarUser = Relationship('UserProfileInfo', 'SIMILARUSER', cardinality=ZeroOrMore)
+    
     class Meta:
         app_label = 'core'
         
