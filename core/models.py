@@ -16,53 +16,43 @@ class UserProfileInfo(DjangoNode):
     latitude = FloatProperty()
     longitude = FloatProperty()
     favGenres = RelationshipTo('Genre','FAVORITEGENRE',cardinality=ZeroOrMore)
-    favBook = RelationshipTo('Book','FAVORITEBOOK',cardinality=ZeroOrMore)
-    bookExchange = RelationshipTo('BookExchange','BOOKEXCHANGE',cardinality=ZeroOrMore)
-    bookDonate = RelationshipTo('BookDonate','BOOKDONATE',cardinality=ZeroOrMore)
-    similarUser = Relationship('UserProfileInfo', 'SIMILARUSER', cardinality=ZeroOrMore)
+    # bookExchange = RelationshipTo('BookExchange','BOOKEXCHANGE',cardinality=ZeroOrMore)
+    # bookDonate = RelationshipTo('BookDonate','BOOKDONATE',cardinality=ZeroOrMore)
+    # similarUser = Relationship('UserProfileInfo', 'SIMILARUSER', cardinality=ZeroOrMore)
     
     class Meta:
         app_label = 'core'
         
-class BookExchange(DjangoNode):
-    title = StringProperty()
-    author = StringProperty()
-    yearOfRelease = StringProperty()
-    user = RelationshipFrom('UserProfileInfo','BOOKEXCHANGE',cardinality=One)
+# class BookExchange(DjangoNode):
+#     title = StringProperty()
+#     author = StringProperty()
+#     yearOfRelease = StringProperty()
+#     user = RelationshipFrom('UserProfileInfo','BOOKEXCHANGE',cardinality=One)
 
-class BookDonate(DjangoNode):
-    bookDonate = RelationshipFrom('Book','BOOKDONATE',cardinality=One)
-    user = RelationshipFrom('UserProfileInfo','BOOKDONATE',cardinality=One)
+# class BookDonate(DjangoNode):
+#     bookDonate = RelationshipFrom('Book','BOOKDONATE',cardinality=One)
+#     user = RelationshipFrom('UserProfileInfo','BOOKDONATE',cardinality=One)
 
 class Book(DjangoNode):
-    title = StringProperty() 
-    image_url = StringProperty()
-    yearOfRelease = StringProperty()
-    rating = FloatProperty()
+    Title = StringProperty() 
+    img_url = StringProperty()
     user = RelationshipFrom('UserProfileInfo','FAVORITEBOOK',cardinality=ZeroOrMore)
-    wrote = RelationshipFrom('Author','WROTE',cardinality=One)
-    published = RelationshipFrom('Publisher','PUBLISHED',cardinality=One)
+    wrote = RelationshipFrom('Author','WROTE',cardinality=OneOrMore)
     genre = RelationshipFrom('Genre','GENRE',cardinality=OneOrMore)
-    bookdonate = RelationshipTo('BookDonate','BOOKDONATE',cardinality=One)
+    # bookdonate = RelationshipTo('BookDonate','BOOKDONATE',cardinality=One)
 
 class Author(DjangoNode):
     name = StringProperty()
-    SEXES = {'F': 'Female', 'M': 'Male', 'O': 'Other'}
-    sex = StringProperty(required=True, choices=SEXES)
-    dob = StringProperty()
-    numOfBooks = IntegerProperty()
+    # SEXES = {'F': 'Female', 'M': 'Male', 'O': 'Other'}
+    # sex = StringProperty(required=True, choices=SEXES)
+    # dob = StringProperty()
+    # numOfBooks = IntegerProperty()
     wrote = RelationshipTo('Book','WROTE',cardinality=ZeroOrMore)
 
-class Publisher(DjangoNode):
-    name = StringProperty()
-    SEXES = {'F': 'Female', 'M': 'Male', 'O': 'Other'}
-    sex = StringProperty(required=True, choices=SEXES)
-    dob = StringProperty()
-    numOfBooks = IntegerProperty()
-    published = RelationshipTo('Publisher','Book',cardinality=OneOrMore)
 
 class Genre(DjangoNode):
     name = StringProperty()
+    genre_id = IntegerProperty()
     bookGenre = RelationshipTo('Book','GENRE',cardinality=ZeroOrMore)
     favGenre = RelationshipFrom('UserProfileInfo','FAVORITEGENRE',cardinality=ZeroOrMore)
     
