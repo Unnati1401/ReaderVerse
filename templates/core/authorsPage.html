@@ -8,18 +8,19 @@
 </div>
 
 <div class="container main">
-    <form action="{% url 'core:authorsPage' %}" method='post'>
+    <form action="{% url 'core:authorsPage' %}" method="post">
         {%csrf_token%}
-        <h1>Select the authors:</h1>
-        {% for a in authorNodes %}
-        <div class="form-check form-check-inline" action="{% url 'core:authorsPage' %}">
-            <input class="form-check-input" type="checkbox" name="authors" id="{{a.name}}" value="{{a.name}}">
-            <label class="form-check-label" for="{{a.name}}">{{a.name}}</label>
-        </div>
-        {% endfor %}
-        <div class="form-group">
-            <button class="btn btn-primary btn-block" type="submit">Submit</button>
-        </div>
+        <h2>Select the author's name:</h2>
+        <select class="mdb-select md-form custom-select" name="authorSelected" searchable="Search here..">
+            <option value="" disabled selected>Choose the author</option>
+            {% for a in authorNodes %}
+            <option value="{{a.name}}">{{a.name}}</option>
+            {% endfor %}
+            
+        </select>
+        <br><br>
+        <button type="submit" class="btn btn-dark">Submit</button>
+                    
     </form>
     <div class="row container">
         {% for book in books %}
@@ -28,14 +29,19 @@
                 <img class="card-img-top" src="{{book.2}}" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title">{{book.0}}</h5>
-                    <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
                 </div>
                 <div class="card-body">
-                    <a href="#" class="card-link">Author: {{book.1.name}}</a>
-                    {% for g in book.3 %}
-                    <a href="#" class="card-link">Genre: {{g.name}}</a>
+                    <p>Authors:</p>
+                    {% for a in book.1 %}
+                    <a href="#" class="card-link">{{a.name}}</a>
                     {% endfor %}
-                </div>
+                  </div>
+                  <div class="card-body">
+                    <p>Genres:</p>
+                    {% for g in book.3 %}
+                      <a href="#" class="card-link">{{g.name}}</a>
+                    {% endfor %}
+                  </div>
             </div>
         </div>
         {% if forloop.counter|divisibleby:3 %}
@@ -46,5 +52,4 @@
     </div>
 </div>
 
-</div>
 {%endblock%}

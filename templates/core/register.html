@@ -23,13 +23,7 @@
                 <h2 class="text-center">Personal Details</h2>
                 {% csrf_token %}
                 {{userform.as_p}}
-            <!-- <div class="form-group"><input class="form-control" type="email" name="email" placeholder="Email" /></div>
-            <div class="form-group"><input class="form-control" type="password" name="password" placeholder="Password" /></div>
-            <div class="form-group"><input class="form-control" type="password" name="password-repeat" placeholder="Password (repeat)" /></div>
-            <div class="form-group">
-                <div class="form-check"><label class="form-check-label"><input class="form-check-input" type="checkbox" />I agree to the license terms.</label></div>
-            </div> -->
-            
+            <h2 class="text-center">Select the genres that interests you.</h2>
             <div class="container">
             {% for g in genreNodes %}
             <div class="form-check form-check-inline">

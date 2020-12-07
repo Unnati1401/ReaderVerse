@@ -13,6 +13,8 @@ from django.http import HttpResponseRedirect,HttpResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from neomodel import db as neodb
+import random
 
 # Create your views here.
 
@@ -52,7 +54,7 @@ def user_login(request):
 @login_required
 def user_logout(request):
     logout(request)
-    return HttpResponseRedirect(reverse('index'))
+    return message(request, 'Logout successful')
 
 def register(request):
     
@@ -67,23 +69,23 @@ def register(request):
             for g in genresList:
                 #print(g)
                 newUser.favGenres.connect(Genre.nodes.get(name=g))
-            message(request,'Registered successfully! You can login to proceed')
+            return message(request,'Registered successfully! You can login to proceed.')
         else:
             print(userform.errors)
-            message(request,'Error in registering. Please try again.')
+            return message(request,'Error in registering. Please try again.')
     else:
         
         #createGenreNodes(request)
         user = request.user
         if user.is_authenticated:
-            return HttpResponse('You are already logged in.')
-        userform = UserForm()
-        genreNodes = Genre.nodes
-        return render(request,'core/register.html',{'userform':userform,'genreNodes':genreNodes})
+            return message(request, 'You are already logged in.')
+        else:
+            userform = UserForm()
+            genreNodes = Genre.nodes
+            return render(request,'core/register.html',{'userform':userform,'genreNodes':genreNodes})
 
 
 def explore(request):
-    books = []
     booksToBePassed = []
     user = request.user
     if user.is_authenticated:
@@ -93,34 +95,62 @@ def explore(request):
         for g in userGenres:
             count = 5
             for b in g.bookGenre.all():
-                books.append(b)
+                booksToBePassed.append([b.Title, b.wrote.all(),b.img_url, b.genre.all()])
                 count = count - 1
                 if count == 0:
                     break
-        for b in books:
-            booksToBePassed.append([b.Title, b.wrote.all(),b.img_url, b.genre.all()])
     else:    
         #adding 5 books from each genre
         genres = Genre.nodes.all()
         for g in genres:
             count = 5
             for b in g.bookGenre.all():
-                books.append(b)
+                booksToBePassed.append([b.Title, b.wrote.all(),b.img_url, b.genre.all()])
                 count = count - 1
                 if count == 0:
                     break
-        for b in books:
-            booksToBePassed.append([b.Title, b.wrote.all(),b.img_url, b.genre.all()])
-                
-    return render(request, 'core/explore.html', {'books': books})
+       
+    return render(request, 'core/explore.html', {'books': booksToBePassed})
 
 def profile(request):
-    node = UserProfileInfo.nodes.get(username=request.user.username)
-    return render(request,'core/profile.html',{'latitude':node.latitude})
+    userNode = UserProfileInfo.nodes.get(username=request.user.username)
+    booksToBePassed = []
+    for b in userNode.favBooks.all():
+        booksToBePassed.append([b.Title, b.wrote.all(), b.genre.all()])
+    userGenres = userNode.favGenres.all()
+    otherGenres = []
+    for g in Genre.nodes.all():
+        if g not in userGenres:
+            otherGenres.append(g)
+    return render(request,'core/profile.html',{'books':booksToBePassed,'userNode':userNode,'userGenres':userGenres,'otherGenres':otherGenres})
+
+def removeFavorites(request):
+    userNode = UserProfileInfo.nodes.get(username=request.user.username)
+    
+    selectedBooks = request.POST.getlist('selectedBooks')
+    for b in selectedBooks:
+        neodb.cypher_query("MATCH (user:UserProfileInfo {username:$username})-[rel:FAVORITEBOOK]->(:Book{Title:$Title}) DELETE rel", {"username": userNode.username,"Title":b})
+    
+    return profile(request)
+
+def addGenres(request):
+    userNode = UserProfileInfo.nodes.get(username=request.user.username)
+    addGenresSelected = request.POST.getlist('addGenresSelected')
+    for g in addGenresSelected:
+        userNode.favGenres.connect(Genre.nodes.get(name=g))
+    return profile(request)
+
+def removeGenres(request):
+    userNode = UserProfileInfo.nodes.get(username=request.user.username)
+    
+    removeGenresSelected = request.POST.getlist('removeGenresSelected')
+    for b in removeGenresSelected:
+        neodb.cypher_query("MATCH (user:UserProfileInfo {username:$username})-[rel:FAVORITEGENRE]->(:Genre{name:$name}) DELETE rel", {"username": userNode.username,"name":b})
+    
+    return profile(request)
 
 # Shows users what other users are reading who have common genres
 def collab(request):
-    books = Book.nodes
     booksToBePassed = []
     user = request.user
     if user.is_authenticated:
@@ -129,41 +159,26 @@ def collab(request):
         #adding books belonging to common genres vale users
         commonUsers = []
         for g in userGenres:
-            for curr in g.favGenre.all():
-                if curr.username != user.username:
-                    commonUsers.append(curr)
-        
-        otherGenres = []
+            for curruser in g.favGenre.all():
+                if curruser not in commonUsers and curruser != userNode:
+                    commonUsers.append(curruser)
         for u in commonUsers:
-            currGenres = u.favGenres.all()
-            for cg in currGenres:
-                if cg not in userGenres:
-                    otherGenres.append(cg)
+            booksList = u.favBooks.all()
+            for b in booksList:
+                booksToBePassed.append([b.Title, b.wrote.all(), b.img_url, b.genre.all()])
+            if len(booksToBePassed) >= 50:
+                break
 
-        for g in otherGenres:
-            count = 5
-            for b in g.bookGenre.all():
-                books.append(b)
-                count = count - 1
-                if count == 0:
-                    break
-
-        for b in books:
-            booksToBePassed.append([b.Title, b.wrote.all(),b.img_url, b.genre.all()])
-        
+        return render(request, 'core/explore.html', { 'books': booksToBePassed})
     else:    
         #adding 5 books from each genre
         genres = Genre.nodes.all()
         for g in genres:
-            count = 5
-            for b in g.bookGenre.all():
-                books.append(b)
-                count = count - 1
-                if count == 0:
-                    break
-        for b in books:
-            booksToBePassed.append([b.Title, b.wrote.all(), b.img_url, b.genre.all()])
-            
+            booksList = g.bookGenre.all()
+            random_items = random.sample(booksList, 5)
+            for b in random_items:
+                booksToBePassed.append([b.Title, b.wrote.all(), b.img_url, b.genre.all()])
+    
     return render(request, 'core/explore.html', { 'books': booksToBePassed })
 
 
@@ -171,24 +186,18 @@ def genresPage(request):
 
     genres = Genre.nodes
     if request.method == "POST":
-        books = []
-        booksToBePassed = []
-        userGenres = []
+        booksToBePassed = {}
         genresList = request.POST.getlist('genres')
+        #adding 50 random books belonging to each selected genres 
         for g in genresList:
-            userGenres.append(Genre.nodes.get(name=g))
-        
-        #adding books belonging to user selected genres
-        for g in userGenres:
-            count = 5
-            for b in g.bookGenre.all():
-                books.append(b)
-                count = count - 1
-                if count == 0:
-                    break
-        for b in books:
-            booksToBePassed.append([b.Title, b.wrote.all(), b.img_url, b.genre.all()])
-            
+            genreNode = Genre.nodes.get(name=g)
+            books = []
+            booksList = genreNode.bookGenre.all()
+            random_items = random.sample(booksList, 50)
+            for b in random_items:
+                books.append([b.Title, b.wrote.all(), b.img_url, b.genre.all()])
+            booksToBePassed[str(genreNode.name)] = books
+
         return render(request, 'core/genresPage.html', {'books': booksToBePassed, 'genreNodes': genres})
     
     else:
@@ -197,52 +206,85 @@ def genresPage(request):
 
 def authorsPage(request):
     authors = Author.nodes
-    authorNodes = sorted(authors, key=lambda x: x.name, reverse=True)
+    authorNodes = sorted(authors, key=lambda x: x.name)
+    random_authors = random.sample(authorNodes, 50)
     if request.method == "POST":
-        books = []
         booksToBePassed = []
-        userAuthors = []
-        authorsList = request.POST.getlist('authors')
-        for a in authorsList:
-            userAuthors.append(Author.nodes.get(name=a))
-        #adding books belonging to user's genres
-        for a in userAuthors:
-            count = 5
-            for b in a.wrote.all():
-                books.append(b)
-                count = count - 1
-                if count == 0:
-                    break
-        for b in books:
+        authorSelected = request.POST.get('authorSelected')
+        #adding 20 books belonging to selected author
+        #random_items = random.sample(booksList, 50)
+        booksList = Author.nodes.get(name=authorSelected).wrote.all()
+        for b in booksList:
             booksToBePassed.append([b.Title, b.wrote.all(), b.img_url, b.genre.all()])
-        
-        return render(request, 'core/authorsPage.html', {'books': booksToBePassed, 'authorNodes': authorNodes})
+        return render(request, 'core/authorsPage.html', {'books': booksToBePassed, 'authorNodes': random_authors})
+    
     else:
-        return render(request, 'core/authorsPage.html', {'authorNodes': authorNodes})
+        return render(request, 'core/authorsPage.html', {'authorNodes': random_authors})
 
 def message(request, message):
-    return render('core/message.html',{'message':message})
-# def publishersPage(request):
-#     publishers = Publisher.nodes
-#     if request.method == "POST":
-#         books = Book.nodes
-#         booksToBePassed = []
-#         userPublishers = []
-#         publishersList = request.POST.getlist('publishers')
-#         for p in publishersList:
-#             userPublishers.append(Publisher.nodes.get(name=p))
-#         #adding books belonging to user's genres
+    return render(request,'core/message.html',{'message':message})
 
-#         for b in books:
-#             if b.wrote.get_or_none() != None and b.published.get_or_none() != None and b.genre.get_or_none() != None and b.published.get_or_none() in userPublishers:
-#                 booksToBePassed.append([b.title, b.yearOfRelease, b.rating, b.wrote.get(
-#                 ), b.published.get(), b.image_url, b.genre.all()])
+def gettingStarted(request):
+    return render(request, 'core/gettingStarted.html')
+    
+def addRatings(request):
+    if request.user.is_authenticated == False:
+        return register(request)
+    
+    else:
+        userNode = UserProfileInfo.nodes.get(username=request.user.username)
+        
+        if request.method=="GET":
+            booksToBePassed = {}
+            userGenres = userNode.favGenres
+            for g in userGenres:
+                books = []
+                booksList = g.bookGenre.all()
+                booksList = sorted(booksList, key=lambda x: x.id)
+                random_items = random.sample(booksList, 50)
+                for b in random_items:
+                    if userNode not in b.user.all():
+                        books.append([b.Title, b.wrote.all(), b.img_url, b.genre.all()])
+                booksToBePassed[str(g.name)] = books
+                
+            return render(request, 'core/addRatings.html', {'booksToBePassed': booksToBePassed})
+        
+        else:
+            selectedBooks = request.POST.getlist('selectedBooks')
+            print(selectedBooks)
+            # for b in favBooksList:
+            #     userNode.favBooks.connect(Book.nodes.get(Title=b))
+            return message(request,'Books added to favorites')
+    
+# Displays random 50 books from each of user's genres and adding selected books as user's favorite ones
+def addFavorites(request):
+    if request.user.is_authenticated == False:
+        return register(request)
+    
+    else:
+        userNode = UserProfileInfo.nodes.get(username=request.user.username)
+        
+        if request.method=="GET":
+            booksToBePassed = {}
+            userGenres = userNode.favGenres
+            for g in userGenres:
+                books = []
+                booksList = g.bookGenre.all()
+                booksList = sorted(booksList, key=lambda x: x.id)
+                random_items = random.sample(booksList, 50)
+                for b in random_items:
+                    if userNode not in b.user.all():
+                        books.append([b.Title, b.wrote.all(), b.img_url, b.genre.all()])
+                booksToBePassed[str(g.name)] = books
+                
+            return render(request, 'core/addFavorites.html', {'booksToBePassed': booksToBePassed})
+        
+        else:
+            favBooksList = request.POST.getlist('selectedBooks')
+            for b in favBooksList:
+                userNode.favBooks.connect(Book.nodes.get(Title=b))
+            return message(request,'Books added to favorites')
 
-#         return render(request, 'core/publishersPage.html', {'books': booksToBePassed, 'publisherNodes': publishers})
-#     else:
-#         return render(request, 'core/publishersPage.html', {'publisherNodes': publishers})
-
-#Creates genre nodes. Call each time before adding the first user. 
 def createGenreNodes(request):
     genre = Genre(genre_id=0,name="Arts & Photography")
     genre.save()
@@ -251,7 +293,6 @@ def createGenreNodes(request):
     genre = Genre(genre_id = 2,name="Business & Money")
     genre.save()
     genre = Genre(genre_id = 3,name="Calendars")
-    
     genre.save()
     genre = Genre(genre_id = 4,name="Children's Books")
     genre.save()

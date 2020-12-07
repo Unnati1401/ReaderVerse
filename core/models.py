@@ -15,40 +15,22 @@ class UserProfileInfo(DjangoNode):
     phone = StringProperty(max_length=10, required = True)
     latitude = FloatProperty()
     longitude = FloatProperty()
-    favGenres = RelationshipTo('Genre','FAVORITEGENRE',cardinality=ZeroOrMore)
-    # bookExchange = RelationshipTo('BookExchange','BOOKEXCHANGE',cardinality=ZeroOrMore)
-    # bookDonate = RelationshipTo('BookDonate','BOOKDONATE',cardinality=ZeroOrMore)
-    # similarUser = Relationship('UserProfileInfo', 'SIMILARUSER', cardinality=ZeroOrMore)
+    favGenres = RelationshipTo('Genre', 'FAVORITEGENRE', cardinality=ZeroOrMore)
+    favBooks = RelationshipTo('Book', 'FAVORITEBOOK', cardinality=ZeroOrMore)
     
     class Meta:
         app_label = 'core'
         
-# class BookExchange(DjangoNode):
-#     title = StringProperty()
-#     author = StringProperty()
-#     yearOfRelease = StringProperty()
-#     user = RelationshipFrom('UserProfileInfo','BOOKEXCHANGE',cardinality=One)
-
-# class BookDonate(DjangoNode):
-#     bookDonate = RelationshipFrom('Book','BOOKDONATE',cardinality=One)
-#     user = RelationshipFrom('UserProfileInfo','BOOKDONATE',cardinality=One)
-
 class Book(DjangoNode):
     Title = StringProperty() 
     img_url = StringProperty()
     user = RelationshipFrom('UserProfileInfo','FAVORITEBOOK',cardinality=ZeroOrMore)
     wrote = RelationshipFrom('Author','WROTE',cardinality=OneOrMore)
-    genre = RelationshipFrom('Genre','GENRE',cardinality=OneOrMore)
-    # bookdonate = RelationshipTo('BookDonate','BOOKDONATE',cardinality=One)
+    genre = RelationshipFrom('Genre', 'GENRE', cardinality=OneOrMore)
 
 class Author(DjangoNode):
     name = StringProperty()
-    # SEXES = {'F': 'Female', 'M': 'Male', 'O': 'Other'}
-    # sex = StringProperty(required=True, choices=SEXES)
-    # dob = StringProperty()
-    # numOfBooks = IntegerProperty()
     wrote = RelationshipTo('Book','WROTE',cardinality=ZeroOrMore)
-
 
 class Genre(DjangoNode):
     name = StringProperty()
