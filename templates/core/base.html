@@ -7,7 +7,6 @@
         <title>ReaderVerse</title>
 
         <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css'>
-        <link rel='stylesheet' href='https://raw.githubusercontent.com/kartik-v/bootstrap-star-rating/master/css/star-rating.min.css'><link rel="stylesheet" href="./style.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic">
         
         <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
@@ -41,6 +40,7 @@
                 {% if user.is_authenticated %}
                     <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:gettingStarted' %}">Getting started</a></li>
                     <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:addFavorites' %}">Add Favorites</a></li>
+                    <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:addRatings' %}">Add Ratings</a></li>
                     <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:profile' %}">Profile</a></li>
                     <li class="nav-item sidebar-nav-item"><a class="nav-link js-scroll-trigger" href="{% url 'core:user_logout' %}">Logout</a></li>
                 {% else %}
