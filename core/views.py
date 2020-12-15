@@ -32,6 +32,7 @@ def create_user_node(sender, instance, created, **kwargs):
 def delete_user_node(sender, instance, **kwargs):
     User.objects.filter(username=instance.username).delete()
 
+#Authenticates the user
 def user_login(request):
     if request.method=='POST':
         username = request.POST.get('username')
@@ -52,11 +53,13 @@ def user_login(request):
     else:
         return render(request,'core/login.html',{})
 
+#User Logout function
 @login_required
 def user_logout(request):
     logout(request)
     return message(request, 'Logout successful')
 
+#Registers the user to the website by validating the data 
 def register(request):
     
     if request.method=='POST':
@@ -162,7 +165,7 @@ def collab(request):
     for b in topBooks:
         topFavBooks.append([b.Title, b.wrote.all(), b.img_url, b.genre.all()])
     
-    return render(request,'core/trending.html',{'topRatedBooks':topRatedBooks,'topFavBooks':topFavBooks})
+    return render(request,'core/collab.html',{'topRatedBooks':topRatedBooks,'topFavBooks':topFavBooks})
 
 
 def genresPage(request):
@@ -283,7 +286,9 @@ def addFavorites(request):
         else:
             favBooksList = request.POST.getlist('selectedBooks')
             for b in favBooksList:
-                userNode.favBooks.connect(Book.nodes.get(Title=b))
+                list = Book.nodes.filter(Title=b)
+                for bookNode in list:
+                    userNode.favBooks.connect(bookNode)
             return message(request, 'Books added to favorites')
 
 def createGenreNodes(request):

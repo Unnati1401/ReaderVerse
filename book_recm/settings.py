@@ -17,7 +17,7 @@ import os
 from neomodel import config
 
 #Seting the connection URL:
-config.DATABASE_URL = 'bolt://neo4j:password@localhost:11003'
+config.DATABASE_URL = 'bolt://neo4j:password@localhost:11006'
 
 #Disable encrypted connection (usefult for development):
 #config.ENCRYPTED_CONNECTION = False
@@ -46,7 +46,7 @@ ALLOWED_HOSTS = []
 #Settings for django_neomodel
 
 NEOMODEL_NEO4J_BOLT_URL = os.environ.get(
-    'NEO4J_BOLT_URL', 'bolt://neo4j:password@localhost:11003')
+    'NEO4J_BOLT_URL', 'bolt://neo4j:password@localhost:11006')
 NEOMODEL_SIGNALS = True
 NEOMODEL_FORCE_TIMEZONE = False
 NEOMODEL_ENCRYPTED_CONNECTION = False

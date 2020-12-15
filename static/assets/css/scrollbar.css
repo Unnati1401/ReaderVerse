@@ -1,11 +1,7 @@
 /* Box styles */
 .myBox {
-border: none;
-padding: 5px;
-width: 100%;
-height: 50%;
-overflow: scroll;
-overflow-x: hidden;
+    height:150px;
+    overflow-y: scroll;
 }
 
 /* Scrollbar styles */
